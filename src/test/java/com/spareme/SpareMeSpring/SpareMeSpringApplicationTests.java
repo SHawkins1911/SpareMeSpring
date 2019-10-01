@@ -1,4 +1,4 @@
-package passionproject.SpareMeSpring;
+package com.spareme.SpareMeSpring;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
