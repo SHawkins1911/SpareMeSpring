@@ -2,8 +2,9 @@ package model;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import lombok.Data;
 
-
+@Data
 @Entity
 @Table(name="user")
 public class User implements Serializable {
