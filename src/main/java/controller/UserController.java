@@ -1,10 +1,13 @@
 package controller;
 
+import jwt.JwtTokenProvider;
 import model.Role;
 import model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +18,9 @@ import java.security.Principal;
 
 @RestController
 public class UserController {
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
     private UserService userService;
@@ -34,6 +40,9 @@ public class UserController {
         //This should be ok http status because this will be used for logout path.
         return ResponseEntity.ok(principal);
     }
-    return new ResponseEntity<>(userService.findByUsername(principal.getName()), HttpStatus.OK);
+    UsernamePasswordAuthenticationToken authenticationToken = (UsernamePasswordAuthenticationToken) principal;
+    User user = userService.findByUsername(authenticationToken.getName());
+    user.setToken(jwtTokenProvider.generateToken(authenticationToken));
+    return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }
