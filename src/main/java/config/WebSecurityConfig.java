@@ -1,5 +1,7 @@
 package config;
 
+import jwt.JwtAuthorizationFilter;
+import jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,10 +21,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
+    private JwtTokenProvider tokenProvider;
+
+    @Autowired
     private UserDetailsService userDetailsService;
 
     @Bean
-    private PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -47,11 +52,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic().and()
                 //Cross side request forgery
                 .csrf().disable();
+
+        http.addFilter(new JwtAuthorizationFilter(authenticationManager(), tokenProvider));
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+    @Bean
+    public JwtTokenProvider jwtTokenProvider(){
+        return tokenProvider;
     }
 
     @Bean
